@@ -124,6 +124,7 @@ const Feed = () => {
                     <Select
                       isMulti
                       isDisabled={categories.length == 0}
+                      placeholder={categories.length == 0 ? 'Loading categories ...' : 'Select categories'}
                       onChange={(e) => setSelectedCategories(e.map(option => option.value))}
                       options={categories.map(source => ({ value: source.id, label: source.name }))}
                       value={
@@ -140,6 +141,7 @@ const Feed = () => {
                     <Select
                       isMulti
                       isDisabled={sources.length == 0}
+                      placeholder={categories.length == 0 ? 'Loading sources ...' : 'Select sources'}
                       onChange={(e) => setSelectedSources(e.map(option => option.value))}
                       options={sources.map(source => ({ value: source.id, label: source.name }))}
                       value={
@@ -150,8 +152,10 @@ const Feed = () => {
                   </div>
                 </div>
                 <div className='flex space-x-2'>
-                  <button type='submit' className='mt-2 bg-blue-500 px-2 py-1 text-white rounded-xl'>
-                    Save
+                  <button type='submit'
+                    disabled={isLoading}
+                    className='mt-2 bg-blue-500 px-2 py-1 text-white rounded-xl'>
+                    Save And Apply
                   </button>
                 </div>
               </form>
@@ -179,7 +183,9 @@ const Feed = () => {
 
         {
           isLoading ? (
-            <Loading/>
+            <div className='self-center'>
+              <Loading />
+            </div>
           ) : (
             <>
 
@@ -197,7 +203,7 @@ const Feed = () => {
               >
                 {
                   isLoadingMore ? (
-                    <Loading/>
+                    <Loading />
                   ) : 'Load more'
                 }
               </button>

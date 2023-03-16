@@ -61,7 +61,7 @@ const Auth = (props) => {
       })
       .catch((error) => {
         return setError(
-          error.message
+          error.response.data.message
         );
       });
   };
