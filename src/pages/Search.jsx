@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import axios from 'axios';
-import Article from '../components/article';
+import Article from '../components/Article';
 import Select from 'react-select'
+import api from '../utils/api';
+import Loading from '../components/Loading';
 
 
 const Search = () => {
@@ -20,7 +21,7 @@ const Search = () => {
     event.preventDefault();
     // call the backend API to retrieve articles based on selected filters
     setIsLoading(true);
-    axios.get('/api/search', {
+    api.get('/api/search', {
       params: {
         q: keyword,
       }
@@ -29,8 +30,8 @@ const Search = () => {
         setArticles(response.data);
         setIsSearched(true);
       })
-      .catch(error => console.log(error));
-    setIsLoading(false);
+      .catch(error => console.log(error))
+      .finally(() => setIsLoading(false));
   }
 
 
@@ -87,94 +88,107 @@ const Search = () => {
         </form>
       </div>
       {
-        articles.length > 0 && (
+        isLoading ? (
 
-          <div className='mt-4 bg-white p-4 rounded-xl border-2 border-neutral-400/20'>
-            <p>
-              Filter The Results
-            </p>
-            <div className='mt-4 space-y-2 '>
-              <div className='space-y-1'>
-                <label htmlFor="category" className='text-neutral-400 font-light text-sm'>
-                  Category
-                </label>
-
-                <Select
-                  isMulti
-                  onChange={(e) => setCategories(e.map(option => option.value))}
-                  options={
-                    [...new Set(articles.map(article => article.category))].map((category, index) => (
-                      { value: category, label: category }
-                    ))
-                  }
-                >
-                </Select>
-              </div>
-              <div className='space-y-1'>
-                <label htmlFor="source" className='text-neutral-400 font-light text-sm'>
-                  Source
-                </label>
-                <Select
-                  isMulti
-                  onChange={(e) => setSources(e.map(option => option.value))}
-                  options={
-                    [...new Set(articles.map(article => article.source))].map((source, index) => (
-                      { value: source, label: source }
-                    ))
-                  }
-                >
-                </Select>
-              </div>
-              <div className="flex space-x-2">
-                <div className='space-y-1 w-full'>
-                  <label htmlFor="fromDate" className='text-neutral-400 font-light text-sm'>
-                    From Date
-                  </label>
-                  <input type="date" className='border-2 border-neutral-400/20 rounded-lg w-full p-1' value={fromDate} onChange={event => setFromDate(event.target.value)} />
-                </div>
-                <div className='space-y-1 w-full'>
-                  <label htmlFor="toDate" className='text-neutral-400 font-light text-sm'>
-                    To Date
-                  </label>
-                  <input type="date" className='border-2 border-neutral-400/20 rounded-lg w-full p-1' value={toDate} onChange={event => setToDate(event.target.value)} />
-                </div>
-              </div>
-            </div>
+          <div className='mt-4 flex space-x-2 items-center justify-center'>
+            <Loading />
           </div>
+
+        ) : (
+          <>
+
+            {
+              articles.length > 0 && (
+
+                <div className='mt-4 bg-white p-4 rounded-xl border-2 border-neutral-400/20'>
+                  <p>
+                    Filter The Results
+                  </p>
+                  <div className='mt-4 space-y-2 '>
+                    <div className='space-y-1'>
+                      <label htmlFor="category" className='text-neutral-400 font-light text-sm'>
+                        Category
+                      </label>
+
+                      <Select
+                        isMulti
+                        onChange={(e) => setCategories(e.map(option => option.value))}
+                        options={
+                          [...new Set(articles.map(article => article.category))].map((category, index) => (
+                            { value: category, label: category }
+                          ))
+                        }
+                      >
+                      </Select>
+                    </div>
+                    <div className='space-y-1'>
+                      <label htmlFor="source" className='text-neutral-400 font-light text-sm'>
+                        Source
+                      </label>
+                      <Select
+                        isMulti
+                        onChange={(e) => setSources(e.map(option => option.value))}
+                        options={
+                          [...new Set(articles.map(article => article.source))].map((source, index) => (
+                            { value: source, label: source }
+                          ))
+                        }
+                      >
+                      </Select>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className='space-y-1 w-full'>
+                        <label htmlFor="fromDate" className='text-neutral-400 font-light text-sm'>
+                          From Date
+                        </label>
+                        <input type="date" className='border-2 border-neutral-400/20 rounded-lg w-full p-1' value={fromDate} onChange={event => setFromDate(event.target.value)} />
+                      </div>
+                      <div className='space-y-1 w-full'>
+                        <label htmlFor="toDate" className='text-neutral-400 font-light text-sm'>
+                          To Date
+                        </label>
+                        <input type="date" className='border-2 border-neutral-400/20 rounded-lg w-full p-1' value={toDate} onChange={event => setToDate(event.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+
+            <div className='mt-4 space-y-4'>
+              {
+                filterdArticles.length === 0 && isSearched ? (
+                  <div className='bg-white p-4 rounded-xl border-2 border-neutral-400/20'>
+                    <p className='text-center'>
+
+                      No Articles Found
+                    </p>
+                  </div>
+                )
+                  : filterdArticles.length > 0 && (
+                    <>
+                      <div className='flex justify-between items-center'>
+                        <p className='text-xl font-light'>
+                          Results
+                        </p>
+
+                        <p className='text-sm font-light text-neutral-400'>
+                          {filterdArticles.length} articles found
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        {filterdArticles.map((article, index) => (
+                          <Article key={index} article={article} />
+                        ))}
+                      </div>
+                    </>
+                  )
+              }
+            </div>
+          </>
         )
       }
-
-      <div className='mt-4 space-y-4'>
-        {
-          filterdArticles.length === 0 && isSearched ? (
-            <div className='bg-white p-4 rounded-xl border-2 border-neutral-400/20'>
-              <p className='text-center'>
-
-                No Articles Found
-              </p>
-            </div>
-          )
-            : filterdArticles.length > 0 && (
-              <>
-                <div className='flex justify-between items-center'>
-                  <p className='text-xl font-light'>
-                    Results
-                  </p>
-
-                  <p className='text-sm font-light text-neutral-400'>
-                    {filterdArticles.length} articles found
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {filterdArticles.map((article, index) => (
-                    <Article key={index} article={article} />
-                  ))}
-                </div>
-              </>
-            )
-        }
-      </div>
     </div>
   );
 };

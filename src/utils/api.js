@@ -1,11 +1,20 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/',
+  baseURL: '/',
   headers: {
     'Access-Control-Allow-Origin': '*',
-    'Authorization': 'Bearer ' + localStorage.getItem('token'),
   },
 });
+
+export const setToken = (token) => {
+  api.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+}
+
+export const removeToken = () => {
+  api.defaults.headers.common['Authorization'] = null;
+}
+
+setToken(localStorage.getItem('token'));
 
 export default api;

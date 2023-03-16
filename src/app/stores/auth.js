@@ -1,6 +1,7 @@
 import {
   createSlice
 } from '@reduxjs/toolkit'
+import { removeToken, setToken } from '../../utils/api';
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -13,6 +14,7 @@ export const authSlice = createSlice({
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("user", JSON.stringify(action.payload.user));
 
+      setToken(action.payload.token);
       state.user = action.payload.user
     },
 
@@ -23,6 +25,8 @@ export const authSlice = createSlice({
 
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+
+      removeToken();
     },
 
     setUser: (state, action) => {
@@ -42,5 +46,6 @@ export const {
 
 
 export const selectUser = (state) => state.auth.user
+export const selectToken = (state) => state.auth.token
 
 export default authSlice.reducer
